@@ -1,0 +1,49 @@
+<ion-side-menus enable-menu-with-back-views="false">
+  <ion-side-menu-content>
+    <ion-nav-bar class="bar-royal">
+      <ion-nav-back-button>
+      </ion-nav-back-button>
+      <ion-nav-buttons side="left">
+        <button class="button button-icon button-clear ion-navicon" menu-toggle="left">
+        </button>
+      </ion-nav-buttons>
+    </ion-nav-bar>
+    <ion-nav-view name="mainContent"></ion-nav-view>
+  </ion-side-menu-content>
+  <ion-side-menu side="left">
+    <ion-header-bar class="bar-positive">
+      <h1 class="title">Navigation</h1>
+    </ion-header-bar>
+    <ion-content>
+      <ion-list>
+        <ion-item href="#/app/home" menu-close>
+          Home
+        </ion-item>
+        <ion-item href="#/app/aboutus" menu-close>
+          About Us
+        </ion-item>
+        <ion-item href="#/app/menu" menu-close>
+          Menu
+        </ion-item>
+         <ion-item href="#/app/favorites" menu-close>
+          My Favorites
+        </ion-item>
+        <ion-item href="#/app/contactus" menu-close>
+          Contact Us
+        </ion-item>
+        <ion-item class="item-divider">
+          Services
+        </ion-item>
+        <ion-item ng-click="openLoginForm()" menu-close>
+          Login
+        </ion-item>
+        <ion-item ng-click="openRegistrationForm()" menu-close>
+          Register
+        </ion-item>
+        <ion-item ng-click="openReservationForm()" menu-close>
+          Reserve Table
+        </ion-item>
+      </ion-list>
+    </ion-content>
+  </ion-side-menu>
+</ion-side-menus>

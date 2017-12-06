@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="JSLintConfiguration">
+    <option bitwise="true" />
+    <option browser="true" />
+    <option devel="true" />
+    <option maxerr="50" />
+    <option node="true" />
+    <option globals="console, $, Handlebars, navigator, global, exports" />
+    <option single="true" />
+  </component>
+  <component name="JavaScriptSettings">
+    <option name="languageLevel" value="ES6" />
+  </component>
+</project>
