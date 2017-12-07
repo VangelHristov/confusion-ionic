@@ -1,102 +1,105 @@
+'use strict';
+
 angular
 	.module("conFusion.services", ["ngResource"])
-	.constant("baseURL", "http://confusion-vangel-hristov.herokuapp.com/api/")
-	.factory("$localStorage", [
-		"$window",
-		function ($window) {
-			return {
-				store      : function (key, value) {
-					$window.localStorage[key] = value;
-				},
-				get        : function (key, defaultValue) {
-					return $window.localStorage[key] || defaultValue;
-				},
-				storeObject: function (key, value) {
-					$window.localStorage[key] = JSON.stringify(value);
-				},
-				getObject  : function (key, defaultValue) {
-					return JSON.parse($window.localStorage[key] || defaultValue);
-				}
-			};
-		}
-	])
+
+	.constant(
+		"baseURL",
+		"http://confusion-vangel-hristov.herokuapp.com/"
+		/*"http://localhost:8100/"*/
+	)
+
 	.factory("menuFactory", [
 		"$resource",
 		"baseURL",
-		function ($resource, baseURL) {
-			return $resource(baseURL + "dishes/:id", null, {
+		($resource, baseURL) => $resource(
+			baseURL + "api/dishes/:id",
+			null,
+			{
 				update: {
 					method: "PUT"
 				}
-			});
-		}
+			}
+		)
 	])
+
 	.factory("promotionFactory", [
 		"$resource",
 		"baseURL",
-		function ($resource, baseURL) {
-			return $resource(baseURL + "promotions/:id");
-		}
+		($resource, baseURL) => $resource(baseURL + "api/promotions/:id")
 	])
+
 	.factory("corporateFactory", [
 		"$resource",
 		"baseURL",
-		function ($resource, baseURL) {
-			return $resource(baseURL + "leadership/:id");
-		}
+		($resource, baseURL) => $resource(baseURL + "api/leadership/:id")
 	])
+
 	.factory("feedbackFactory", [
 		"$resource",
 		"baseURL",
-		function ($resource, baseURL) {
-			return $resource(baseURL + "feedback/:id");
-		}
+		($resource, baseURL) => $resource(baseURL + "api/feedback/:id")
 	])
+
 	.factory("favoriteFactory", [
 		"$resource",
 		"baseURL",
-		"$localStorage",
-		function ($resource, baseURL, $localStorage) {
-			var favFac = {};
-			var favoriteDishesKey = "userFavoritesDishes";
-			var favorites = $localStorage.getObject(favoriteDishesKey, "[]");
+		"userFactory",
+		function favoriteFactory($resource, baseURL, userFactory) {
 
-			favFac.addToFavorites = function (index) {
-				for (var i = 0; i < favorites.length; i++) {
-					if (favorites[i].id == index) return;
-				}
-				favorites.push({id: index});
-				$localStorage.storeObject(favoriteDishesKey, favorites);
+			let addToFavorites = function (id) {
+				return $resource(baseURL + 'api/favorites')
+					.save({
+						token: userFactory.getToken(),
+						id   : id
+					})
+					.$promise
+					.then(favorites => favorites.dishes)
+					.catch(err => err);
 			};
 
-			favFac.deleteFromFavorites = function (index) {
-				for (var i = 0; i < favorites.length; i++) {
-					if (favorites[i].id == index) {
-						favorites.splice(i, 1);
+			let deleteFromFavorites = function (id) {
+				return $resource(
+					baseURL + 'api/favorites/:id',
+					{id: '@id'},
+					{
+						deleteFromFavorites: {
+							method : 'DELETE',
+							headers: {'x-access-token': userFactory.getToken()}
+						}
 					}
-				}
-
-				$localStorage.storeObject(favoriteDishesKey, favorites);
+				)
+					.deleteFromFavorites({id: id})
+					.$promise
+					.then(favorites => favorites)
+					.catch(err => err);
 			};
 
-			favFac.getFavorites = function () {
-				return favorites;
+			let getFavorites = function () {
+				return $resource(
+					baseURL + 'api/favorites',
+					{},
+					{
+						getFavorites: {
+							method : 'GET',
+							headers: {'x-access-token': userFactory.getToken()}
+						}
+					}
+				)
+					.getFavorites()
+					.$promise
+					.then(favorites => favorites.dishes)
+					.catch(err => err);
 			};
 
-			return favFac;
+			return {
+				addToFavorites,
+				deleteFromFavorites,
+				getFavorites
+			};
 		}
 	])
-	.filter("favoriteFilter", function () {
-		return function (dishes, favorites) {
-			var out = [];
-			for (var i = 0; i < favorites.length; i++) {
-				for (var j = 0; j < dishes.length; j++) {
-					if (dishes[j].id === favorites[i].id) out.push(dishes[j]);
-				}
-			}
-			return out;
-		};
-	})
+
 	.factory('userFactory', [
 		'$window',
 		'$resource',
@@ -105,7 +108,7 @@ angular
 			const id = '234781390h-fdggh034875-348dsuijkh-f07156-318-0';
 			const name = '276fdibhjdsnhgfm5432-90y8fb43j5k87452bh387gr213h';
 			const token = 'nbqrncr0754yv8b0f7n8723816r2t87ungi35370h98876cb3';
-			const url = baseURL + 'users/';
+			const url = baseURL + 'api/users/';
 
 			const storeUser = function (user) {
 				$window.localStorage.setItem(id, user.userId);
@@ -120,38 +123,31 @@ angular
 			};
 
 			return {
-				register : function (user) {
+				register       : function (user) {
 					return $resource(url + 'register')
 						.save(user)
 						.$promise
-						.then((result) => {
-							storeUser(result);
-							return;
-						})
+						.then(result => storeUser(result))
 						.catch(err => err);
 				},
-				login    : function (user) {
+				login          : function (user) {
 					return $resource(url + 'login')
 						.save(user)
 						.$promise
-						.then((result) => {
-							storeUser(result);
-							return;
-						})
+						.then(result => {storeUser(result);})
 						.catch(err => err);
 				},
-				logout   : function () {
+				logout         : function () {
 					return $resource(url + 'logout')
 						.get()
 						.$promise
-						.then(() => {
-							return;
-						})
+						.then(() => removeUser())
 						.catch(err => err);
 				},
-				getName  : () => $window.localStorage.getItem(name),
-				getUserId: () => $window.localStorage.getItem(id),
-				getToken : () => $window.localStorage.getItem(token)
+				getName        : () => $window.localStorage.getItem(name),
+				getUserId      : () => $window.localStorage.getItem(id),
+				getToken       : () => $window.localStorage.getItem(token),
+				isAuthenticated: () => $window.localStorage.getItem(token) !== null
 			};
 		}
 	]);

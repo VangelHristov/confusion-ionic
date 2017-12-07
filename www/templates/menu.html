@@ -24,7 +24,7 @@
 			          ng-repeat = "dish in dishes | filter:{category: filtText}">
 				<img ng-src = "{{baseURL+dish.image}}">
 				<h2>{{dish.name}}
-					<span style = "font-size:75%">{{dish.price | currency}}</span>
+					<span style = "font-size:75%">{{dish.price/100 | currency}}</span>
 					<span class = "badge badge-assertive">{{dish.label}}</span>
 				</h2>
 				<p>{{dish.description}}</p>

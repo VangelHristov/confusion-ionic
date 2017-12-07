@@ -126,8 +126,6 @@ module.exports = [
 module.exports.metadata = 
 // TOP OF METADATA
 {
-  "cordova-plugin-app-event": "1.2.0",
-  "cordova-plugin-compat": "1.1.0",
   "cordova-plugin-camera": "2.4.1",
   "cordova-plugin-console": "1.0.5",
   "cordova-plugin-device": "1.1.4",
@@ -138,7 +136,8 @@ module.exports.metadata =
   "cordova-plugin-whitelist": "1.3.1",
   "cordova-plugin-x-toast": "2.6.0",
   "de.appplant.cordova.plugin.local-notification": "0.8.5",
-  "ionic-plugin-keyboard": "2.2.1"
+  "ionic-plugin-keyboard": "2.2.1",
+  "cordova-plugin-app-event": "1.2.0"
 };
 // BOTTOM OF METADATA
 });

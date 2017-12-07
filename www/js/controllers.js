@@ -1,25 +1,22 @@
+"use strict";
+
 angular
 	.module("conFusion.controllers", [])
 	.controller("AppCtrl", [
 		"$scope",
 		"$ionicModal",
 		"$timeout",
-		"$localStorage",
 		"$ionicPlatform",
 		"userFactory",
-		"$cordovaCamera",
-		"$cordovaImagePicker",
-		function (
+		"$cordovaToast",
+		function appCrtl(
 			$scope,
 			$ionicModal,
 			$timeout,
-			$localStorage,
 			$ionicPlatform,
 			userFactory,
-			$cordovaCamera,
-			$cordovaImagePicker
+			$cordovaToast
 		) {
-			"use strict";
 
 			// With the new view caching in Ionic, Controllers are only called
 			// when they are recreated or on app start, instead of every page
@@ -28,31 +25,29 @@ angular
 			// $scope.$on('$ionicView.enter', function(e) { });
 
 			// login modal
-			$scope.loginData = $localStorage.getObject("userinfo", "{}");
+			$scope.loginData = {
+				username: userFactory.getName(),
+				token   : userFactory.getToken(),
+				password: ""
+			};
 
 			$ionicModal
 				.fromTemplateUrl("templates/login.html", {
 					scope: $scope
 				})
-				.then(function (modal) {
+				.then((modal) => {
 					$scope.loginForm = modal;
 				});
 
-			$scope.closeLoginForm = function () {
-				$scope.loginForm.hide();
-			};
+			$scope.closeLoginForm = () => $scope.loginForm.hide();
 
-			$scope.openLoginForm = function () {
-				$scope.loginForm.show();
-			};
+			$scope.openLoginForm = () => $scope.loginForm.show();
 
-			$scope.doLogin = function () {
-				//$localStorage.storeObject("userinfo", $scope.loginData);
-
+			$scope.doLogin = function doLogin() {
 				userFactory
 					.login($scope.loginData)
 					.then(() => $scope.closeLoginForm())
-					.catch(err => {});
+					.catch(err => $cordovaToast.show(err, "long", "top"));
 			};
 
 			// table reservation
@@ -62,23 +57,18 @@ angular
 				.fromTemplateUrl("templates/reserve.html", {
 					scope: $scope
 				})
-				.then(function (modal) {
+				.then(modal => {
 					$scope.tableReservationForm = modal;
 				});
 
-			$scope.closeReservationForm = function () {
-				$scope.tableReservationForm.hide();
-			};
+			$scope.closeReservationForm = () => $scope.tableReservationForm.hide();
 
-			$scope.openReservationForm = function () {
-				$scope.tableReservationForm.show();
-			};
+			$scope.openReservationForm = () => $scope.tableReservationForm.show();
 
-			$scope.reserveTable = function () {
-				$timeout(function () {
-					$scope.closeReservationForm();
-				}, 1000);
-			};
+			$scope.reserveTable = () => $timeout(
+				() => $scope.closeReservationForm(),
+				1000
+			);
 
 			// registration
 			$scope.registration = {};
@@ -87,67 +77,20 @@ angular
 				.fromTemplateUrl("templates/register.html", {
 					scope: $scope
 				})
-				.then(function (modal) {
-					$scope.registrationForm = modal;
-				});
+				.then(modal => {$scope.registrationForm = modal;});
 
-			$scope.closeRegistrationForm = function () {
-				$scope.registrationForm.hide();
-			};
+			$scope.closeRegistrationForm = () => $scope.registrationForm.hide();
 
-			$scope.openRegistrationForm = function () {
-				$scope.registrationForm.show();
-			};
+			$scope.openRegistrationForm = () => $scope.registrationForm.show();
 
-			$scope.doRegister = function () {
+			$scope.doRegister = function doRegister() {
 				userFactory
 					.register($scope.registration)
-					.then(() => $scope.closeRegistrationForm())
-					.catch(err => {});
-			};
-
-			$ionicPlatform.ready(function () {
-				var options = {
-					quality         : 100,
-					destinationType : Camera.DestinationType.DATA_URL,
-					sourceType      : Camera.PictureSourceType.CAMERA,
-					allowEdit       : true,
-					encodingType    : Camera.EncodingType.JPEG,
-					targetWidth     : 100,
-					targetHeight    : 100,
-					popoverOptions  : CameraPopoverOptions,
-					saveToPhotoAlbum: false
-				};
-
-				$scope.takePicture = function () {
-					$cordovaCamera.getPicture(options)
-					              .then(
-						              function (imageData) {
-							              $scope.registration.imgSrc =
-								              "data:image/jpeg;base64," + imageData;
-						              }, function (err) { console.log(err); });
-
-					$scope.openRegistrationForm();
-				};
-			});
-
-			// open gallery
-			$scope.openGallery = function () {
-				$cordovaImagePicker
-					.getPictures({
-						maximumImagesCount: 1,
-						width             : 100,
-						height            : 100,
-						quality           : 50
+					.then(() => {
+						$scope.closeRegistrationForm();
+						$scope.registration = {};
 					})
-					.then(function (results) {
-						$scope.registration.imgSrc = results[0];
-					})
-					.catch(function (err) {
-						console.log(err);
-					});
-
-				$scope.openRegistrationForm();
+					.catch(err => $cordovaToast.show(err, "long", "top"));
 			};
 		}
 	])
@@ -156,14 +99,14 @@ angular
 		"dishes",
 		"favoriteFactory",
 		"baseURL",
-		function ($scope, dishes, favoriteFactory, baseURL) {
+		function menuController($scope, dishes, favoriteFactory, baseURL) {
 			$scope.baseURL = baseURL;
 			$scope.tab = 1;
 			$scope.filtText = "";
 			$scope.showDetails = false;
 			$scope.dishes = dishes;
 
-			$scope.select = function (setTab) {
+			$scope.select = function select(setTab) {
 				$scope.tab = setTab;
 
 				if (setTab === 2) {
@@ -177,18 +120,14 @@ angular
 				}
 			};
 
-			$scope.isSelected = function (checkTab) {
-				return $scope.tab === checkTab;
-			};
+			$scope.isSelected = (checkTab) => $scope.tab === checkTab;
 
-			$scope.toggleDetails = function () {
-				$scope.showDetails = !$scope.showDetails;
-			};
+			$scope.toggleDetails = () => {$scope.showDetails = !$scope.showDetails;};
 		}
 	])
 	.controller("ContactController", [
 		"$scope",
-		function ($scope) {
+		function contactController($scope) {
 			$scope.feedback = {
 				mychannel: "",
 				firstName: "",
@@ -197,7 +136,7 @@ angular
 				email    : ""
 			};
 
-			var channels = [
+			$scope.channels = [
 				{
 					value: "tel",
 					label: "Tel."
@@ -208,20 +147,23 @@ angular
 				}
 			];
 
-			$scope.channels = channels;
 			$scope.invalidChannelSelection = false;
 		}
 	])
 	.controller("FeedbackController", [
 		"$scope",
 		"feedbackFactory",
-		function ($scope, feedbackFactory) {
-			$scope.sendFeedback = function () {
-				if ($scope.feedback.agree && $scope.feedback.mychannel == "") {
+		function feedbackController($scope, feedbackFactory) {
+
+			$scope.sendFeedback = function sendFeedback() {
+
+				if ($scope.feedback.agree && $scope.feedback.mychannel === "") {
 					$scope.invalidChannelSelection = true;
 				} else {
 					$scope.invalidChannelSelection = false;
+
 					feedbackFactory.save($scope.feedback);
+
 					$scope.feedback = {
 						mychannel: "",
 						firstName: "",
@@ -246,7 +188,8 @@ angular
 		"$ionicPlatform",
 		"$cordovaLocalNotification",
 		"$cordovaToast",
-		function (
+		"userFactory",
+		function dishDetailController(
 			$scope,
 			dish,
 			baseURL,
@@ -256,63 +199,67 @@ angular
 			favoriteFactory,
 			$ionicPlatform,
 			$cordovaLocalNotification,
-			$cordovaToast
+			$cordovaToast,
+			userFactory
 		) {
 			$scope.baseURL = baseURL;
 			$scope.dish = dish;
 
 			// Options popover setup
-			$ionicPopover.fromTemplateUrl(
-				"templates/dish-detail-popover.html",
-				{scope: $scope}
-			             )
-			             .then(function (popover) {
-				             $scope.popover = popover;
-			             });
+			$ionicPopover
+				.fromTemplateUrl(
+					"templates/dish-detail-popover.html",
+					{scope: $scope}
+				)
+				.then(popover => { $scope.popover = popover;});
 
-			$scope.showOptions = function ($event) {
-				$scope.popover.show($event);
-			};
+			$scope.showOptions = ($event) => $scope.popover.show($event);
 
-			$scope.hideOptions = function () {
+			$scope.hideOptions = function hideOptions() {
 				$scope.popover.hide();
 				$ionicBody.removeClass("popover-open");
 			};
 
 			// Dish comment form modal setup
-			$ionicModal.fromTemplateUrl(
-				"templates/dish-comment.html",
-				{scope: $scope}
-			           )
-			           .then(function (modal) {
-				           $scope.modal = modal;
-			           });
+			$ionicModal
+				.fromTemplateUrl(
+					"templates/dish-comment.html",
+					{scope: $scope}
+				)
+				.then(modal => {$scope.modal = modal;});
 
-			$scope.showCommentForm = function ($event) {
+			$scope.showCommentForm = function showCommentForm($event) {
+				if(!userFactory.isAuthenticated()){
+				    return $cordovaToast.show('Please login', 'long', 'top');
+				}
+
 				$scope.modal.show($event);
 				$scope.hideOptions();
 			};
 
-			$scope.hideCommentForm = function () {
-				$scope.modal.hide();
-			};
+			$scope.hideCommentForm = () => $scope.modal.hide();
 
-			$scope.addToFavorite = function (index) {
+			$scope.addToFavorite = function addToFavorite(index) {
+				if(!userFactory.isAuthenticated()){
+				    return $cordovaToast.show('Please login', 'long', 'top');
+				}
+
 				favoriteFactory.addToFavorites(index);
 				$scope.hideOptions();
 
-				$ionicPlatform.ready(function () {
-					$cordovaLocalNotification.schedule({
-						id   : 1,
-						title: "Added Favorite",
-						text : $scope.dish.name
-					});
+				$ionicPlatform
+					.ready(function onPlatformReady() {
+						$cordovaLocalNotification.schedule({
+							id   : 1,
+							title: "Added Favorite",
+							text : $scope.dish.name
+						});
 
-					$cordovaToast.show(
-						"Added Favorite " + $scope.dish.name, "long",
-						"bottom"
-					);
-				});
+						$cordovaToast.show(
+							"Added Favorite " + $scope.dish.name, "long",
+							"bottom"
+						);
+					});
 			};
 		}
 	])
@@ -320,20 +267,19 @@ angular
 		"$scope",
 		"menuFactory",
 		"userFactory",
-		function ($scope, menuFactory, userFactory) {
+		function dishCommentController($scope, menuFactory, userFactory) {
 			$scope.mycomment = {rating: 5, comment: "", author: "", date: ""};
 
-			$scope.submitComment = function () {
+			$scope.submitComment = function submitComment() {
 				$scope.mycomment.date = new Date().toISOString();
 				$scope.mycomment.author = userFactory.getName();
 				$scope.mycomment.postedBy = userFactory.getUserId();
 				$scope.mycomment.token = userFactory.getToken();
 
-				$scope.dish.comments.push($scope.mycomment);
+				//$scope.dish.comments.push($scope.mycomment);
 				menuFactory.update({id: $scope.dish.id}, $scope.dish);
 
 				$scope.commentForm.$setPristine();
-
 				$scope.mycomment = {
 					rating : 5,
 					comment: "",
@@ -350,7 +296,7 @@ angular
 		"promotion",
 		"leader",
 		"baseURL",
-		function ($scope, dish, promotion, leader, baseURL) {
+		function indexController($scope, dish, promotion, leader, baseURL) {
 			$scope.baseURL = baseURL;
 			$scope.leader = leader;
 			$scope.dish = dish;
@@ -361,23 +307,21 @@ angular
 		"$scope",
 		"leaders",
 		"baseURL",
-		function ($scope, leaders, baseURL) {
+		function aboutController($scope, leaders, baseURL) {
 			$scope.leaders = leaders;
 			$scope.baseURL = baseURL;
 		}
 	])
 	.controller("FavoritesController", [
 		"$scope",
-		"dishes",
 		"favorites",
 		"baseURL",
 		"$ionicPopup",
 		"favoriteFactory",
 		"$cordovaVibration",
 		"$ionicPlatform",
-		function (
+		function favoritesController(
 			$scope,
-			dishes,
 			favorites,
 			baseURL,
 			$ionicPopup,
@@ -387,26 +331,23 @@ angular
 		) {
 			$scope.baseURL = baseURL;
 			$scope.favorites = favorites;
-			$scope.dishes = dishes;
 
 			$scope.shouldShowDelete = false;
-			$scope.toggleDelete = function () {
-				$scope.shouldShowDelete = !$scope.shouldShowDelete;
-			};
+			$scope.toggleDelete = () => {$scope.shouldShowDelete = !$scope.shouldShowDelete;};
 
-			$scope.deleteFavorite = function (index) {
+			$scope.deleteFavorite = function deleteFavorite(index) {
 				$ionicPopup
 					.confirm({
 						title   : "Confirm Delete",
 						template: "Are you sure you want to delete this item?"
 					})
-					.then(function (res) {
+					.then(res => {
 						if (res) {
-							favoriteFactory.deleteFromFavorites(index);
+							favoriteFactory
+								.deleteFromFavorites(index);
 
-							$ionicPlatform.ready(function () {
-								$cordovaVibration.vibrate(1000);
-							});
+							$ionicPlatform
+								.ready(() => $cordovaVibration.vibrate(1000));
 						}
 					});
 

@@ -1,50 +1,61 @@
+'use strict';
+
 angular
 	.module(
 		"conFusion",
-		["ionic", "ngCordova", "conFusion.controllers", "conFusion.services"]
+		[
+			"ionic",
+			"ngCordova",
+			"conFusion.controllers",
+			"conFusion.services"
+		]
 	)
-	.run(function (
+
+	.run(function appRun(
 		$ionicPlatform,
 		$rootScope,
 		$ionicLoading,
 		$cordovaSplashscreen,
 		$timeout
 	) {
-		$ionicPlatform.ready(function () {
+		$ionicPlatform.ready(function onPlatformReady() {
 			// Hide the accessory bar by default (remove this to show the
 			// accessory bar above the keyboard for form inputs)
 			if (window.cordova && window.cordova.plugins.Keyboard) {
-				cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
-				cordova.plugins.Keyboard.disableScroll(true);
+				window.cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
+				window.cordova.plugins.Keyboard.disableScroll(true);
 			}
 			if (window.StatusBar) {
 				// org.apache.cordova.statusbar required
-				StatusBar.styleDefault();
+				window.StatusBar.styleDefault();
 			}
 
-			//$timeout(function() {
-			//    $cordovaSplashscreen.hide();
-			//}, 2000);
+			$timeout(
+				() => $cordovaSplashscreen.hide(),
+				2000
+			);
 		});
 
-		$rootScope.$on("$stateChangeStart", function () {
+		$rootScope.$on("$stateChangeStart", () => {
 			$ionicLoading.show({
 				template: "<ion-spinner></ion-spinner> Loading ..."
 			});
 		});
 
-		$rootScope.$on("$stateChangeSuccess", function () {
-			$ionicLoading.hide();
-		});
+		$rootScope.$on("$stateChangeSuccess", () => $ionicLoading.hide());
 	})
-	.config(function ($stateProvider, $urlRouterProvider) {
+
+	.config(function config($stateProvider, $urlRouterProvider) {
+
 		$stateProvider
+
 			.state("app", {
 				url        : "/app",
 				abstract   : true,
 				templateUrl: "templates/sidebar.html",
 				controller : "AppCtrl"
 			})
+
 			.state("app.home", {
 				url  : "/home",
 				views: {
@@ -54,26 +65,24 @@ angular
 						resolve    : {
 							dish     : [
 								"menuFactory",
-								function (menuFactory) {
-									return menuFactory.get({id: "5a2137fef36d282c8c62e41d"});
-								}
+								menuFactory => menuFactory
+									.get({id: "5a2137fef36d282c8c62e41d"})
 							],
 							promotion: [
 								"promotionFactory",
-								function (promotionFactory) {
-									return promotionFactory.get({id: "5a213890f36d282c8c62e453"});
-								}
+								promotionFactory => promotionFactory
+									.get({id: "5a213890f36d282c8c62e453"})
 							],
 							leader   : [
 								"corporateFactory",
-								function (corporateFactory) {
-									return corporateFactory.get({id: "5a2138fcf36d282c8c62e473"});
-								}
+								corporateFactory => corporateFactory
+									.get({id: "5a2138fcf36d282c8c62e473"})
 							]
 						}
 					}
 				}
 			})
+
 			.state("app.aboutus", {
 				url  : "/aboutus",
 				views: {
@@ -83,14 +92,13 @@ angular
 						resolve    : {
 							leaders: [
 								"corporateFactory",
-								function (corporateFactory) {
-									return corporateFactory.query();
-								}
+								corporateFactory => corporateFactory.query()
 							]
 						}
 					}
 				}
 			})
+
 			.state("app.contactus", {
 				url  : "/contactus",
 				views: {
@@ -99,6 +107,7 @@ angular
 					}
 				}
 			})
+
 			.state("app.menu", {
 				url  : "/menu",
 				views: {
@@ -108,14 +117,13 @@ angular
 						resolve    : {
 							dishes: [
 								"menuFactory",
-								function (menuFactory) {
-									return menuFactory.query();
-								}
+								menuFactory => menuFactory.query()
 							]
 						}
 					}
 				}
 			})
+
 			.state("app.dishdetails", {
 				url  : "/menu/:id",
 				views: {
@@ -126,14 +134,14 @@ angular
 							dish: [
 								"$stateParams",
 								"menuFactory",
-								function ($stateParams, menuFactory) {
-									return menuFactory.get({id: $stateParams.id});
-								}
+								($stateParams, menuFactory) => menuFactory
+									.get({id: $stateParams.id})
 							]
 						}
 					}
 				}
 			})
+
 			.state("app.favorites", {
 				url  : "/favorites",
 				views: {
@@ -141,17 +149,9 @@ angular
 						templateUrl: "templates/favorites.html",
 						controller : "FavoritesController",
 						resolve    : {
-							dishes   : [
-								"menuFactory",
-								function (menuFactory) {
-									return menuFactory.query();
-								}
-							],
 							favorites: [
 								"favoriteFactory",
-								function (favoriteFactory) {
-									return favoriteFactory.getFavorites();
-								}
+								favoriteFactory => favoriteFactory.getFavorites()
 							]
 						}
 					}

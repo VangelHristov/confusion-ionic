@@ -8,7 +8,7 @@
       <div class="item item-thumbnail-left item-text-wrap">
         <img ng-src="{{baseURL+dish.image}}" alt="Uthappizza">
         <h2>{{dish.name}}
-          <span class="badge">{{dish.price | currency}}</span></h2>
+          <span class="badge">{{dish.price/100 | currency}}</span></h2>
         <p>{{dish.description}}</p>
       </div>
     </div>
@@ -20,7 +20,7 @@
       <div class="item item-thumbnail-left item-text-wrap">
         <img ng-src="{{baseURL+promotion.image}}" alt="{{promotion.name}}">
         <h2>{{promotion.name}}
-          <span class="badge">{{promotion.price | currency}}</span></h2>
+          <span class="badge">{{promotion.price/100 | currency}}</span></h2>
         <p>{{promotion.description}}</p>
       </div>
     </div>
