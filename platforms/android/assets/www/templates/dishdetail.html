@@ -5,14 +5,12 @@
 	</ion-nav-buttons>
 	<ion-content>
 		<div class = "card">
-			<div class = "item item-body item-text-wrap">
-				<img class = "full-image"
-				     ng-src = "{{baseURL+dish.image}}"
-				     alt = "Uthappizza">
-				<h2>{{dish.name}}
-					<span style = "font-size:75%">{{dish.price/100 | currency}}</span>
-					<span class = "badge badge-assertive">{{dish.label}}</span>
-				</h2>
+			<div class = "item item-divider">
+				{{dish.name}}
+			
+			</div>
+			<div class = "item item-thumbnail-left item-text-wrap">
+				<img ng-src = "{{baseURL+dish.image}}">
 				<p>{{dish.description}}</p>
 			</div>
 		</div>
@@ -30,7 +28,8 @@
 							<p>{{comment.comment}}</p>
 							<footer>
 								{{comment.author}},
-								{{comment.date||comment.createdAt |date:'MMM.dd,yyyy'}}
+								{{comment.date||comment.createdAt
+								|date:'MMM.dd,yyyy'}}
 							</footer>
 						</blockquote>
 					</li>

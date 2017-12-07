@@ -144,6 +144,7 @@ angular
 
 			.state("app.favorites", {
 				url  : "/favorites",
+				cache: false,
 				views: {
 					mainContent: {
 						templateUrl: "templates/favorites.html",

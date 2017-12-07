@@ -18,7 +18,7 @@
 	</div>
 	
 	<ion-content>
-		<ion-list>
+		<ion-list can-swipe = "true">
 			<ion-item class = "item-thumbnail-left"
 			          href = "#/app/menu/{{dish._id}}"
 			          ng-repeat = "dish in dishes | filter:{category: filtText}">
@@ -28,9 +28,9 @@
 					<span class = "badge badge-assertive">{{dish.label}}</span>
 				</h2>
 				<p>{{dish.description}}</p>
-				<ion-option-button class = "button-assertive icon ion-plus-circled"
-				                   ng-click = "addFavorite(dish._id)">
-				</ion-option-button>
+				<ion-option-button
+					class = "button-assertive icon ion-plus-circled"
+					ng-click = "addToFavorite(dish._id)"></ion-option-button>
 			</ion-item>
 		</ion-list>
 	</ion-content>

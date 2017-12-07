@@ -25,12 +25,7 @@ angular
 			// $scope.$on('$ionicView.enter', function(e) { });
 
 			// login modal
-			$scope.loginData = {
-				username: userFactory.getName(),
-				token   : userFactory.getToken(),
-				password: ""
-			};
-
+			$scope.loginData = {username: "", password: ""};
 			$ionicModal
 				.fromTemplateUrl("templates/login.html", {
 					scope: $scope
@@ -46,8 +41,16 @@ angular
 			$scope.doLogin = function doLogin() {
 				userFactory
 					.login($scope.loginData)
-					.then(() => $scope.closeLoginForm())
-					.catch(err => $cordovaToast.show(err, "long", "top"));
+					.then(user => {
+						$scope.closeLoginForm();
+						$scope.loginData = {username: "", password: ""};
+						$cordovaToast.show(
+							`Welcome ${user.name}`,
+							"long",
+							"bottom"
+						);
+					})
+					.catch(err => $cordovaToast.show(err, "long", "bottom"));
 			};
 
 			// table reservation
@@ -71,7 +74,7 @@ angular
 			);
 
 			// registration
-			$scope.registration = {};
+			$scope.registration = {username: "", password: ""};
 
 			$ionicModal
 				.fromTemplateUrl("templates/register.html", {
@@ -86,11 +89,30 @@ angular
 			$scope.doRegister = function doRegister() {
 				userFactory
 					.register($scope.registration)
-					.then(() => {
+					.then(user => {
 						$scope.closeRegistrationForm();
-						$scope.registration = {};
+						$scope.registration = {username: "", password: ""};
+						$cordovaToast.show(
+							`Welcome ${user.name}`,
+							"long",
+							"bottom"
+						);
 					})
-					.catch(err => $cordovaToast.show(err, "long", "top"));
+					.catch(err => $cordovaToast.show(err, "long", "bottom"));
+			};
+
+			$scope.isAuthenticated = userFactory.isAuthenticated;
+
+			$scope.logout = () => {
+				userFactory
+					.logout()
+					.then(() => $cordovaToast
+						.show(
+							'You have logged out',
+							'long',
+							'bottom'
+						)
+					);
 			};
 		}
 	])
@@ -99,7 +121,20 @@ angular
 		"dishes",
 		"favoriteFactory",
 		"baseURL",
-		function menuController($scope, dishes, favoriteFactory, baseURL) {
+		"userFactory",
+		"$cordovaToast",
+		"$ionicPlatform",
+		"$ionicListDelegate",
+		function menuController(
+			$scope,
+			dishes,
+			favoriteFactory,
+			baseURL,
+			userFactory,
+			$cordovaToast,
+			$ionicPlatform,
+			$ionicListDelegate
+		) {
 			$scope.baseURL = baseURL;
 			$scope.tab = 1;
 			$scope.filtText = "";
@@ -123,6 +158,22 @@ angular
 			$scope.isSelected = (checkTab) => $scope.tab === checkTab;
 
 			$scope.toggleDetails = () => {$scope.showDetails = !$scope.showDetails;};
+
+			$scope.addToFavorite = function addFavorite(index) {
+				if (!userFactory.isAuthenticated()) {
+					return $cordovaToast.show('Please login', 'long', 'bottom');
+				}
+
+				favoriteFactory.addToFavorites(index);
+
+				$ionicPlatform
+					.ready(function onPlatformReady() {
+						$cordovaToast
+							.show("Added Favorite ", "long", "bottom");
+
+						$ionicListDelegate.closeOptionButtons();
+					});
+			};
 		}
 	])
 	.controller("ContactController", [
@@ -229,8 +280,8 @@ angular
 				.then(modal => {$scope.modal = modal;});
 
 			$scope.showCommentForm = function showCommentForm($event) {
-				if(!userFactory.isAuthenticated()){
-				    return $cordovaToast.show('Please login', 'long', 'top');
+				if (!userFactory.isAuthenticated()) {
+					return $cordovaToast.show('Please login', 'long', 'bottom');
 				}
 
 				$scope.modal.show($event);
@@ -240,8 +291,8 @@ angular
 			$scope.hideCommentForm = () => $scope.modal.hide();
 
 			$scope.addToFavorite = function addToFavorite(index) {
-				if(!userFactory.isAuthenticated()){
-				    return $cordovaToast.show('Please login', 'long', 'top');
+				if (!userFactory.isAuthenticated()) {
+					return $cordovaToast.show('Please login', 'long', 'bottom');
 				}
 
 				favoriteFactory.addToFavorites(index);
@@ -320,6 +371,8 @@ angular
 		"favoriteFactory",
 		"$cordovaVibration",
 		"$ionicPlatform",
+		"$state",
+		"$cordovaToast",
 		function favoritesController(
 			$scope,
 			favorites,
@@ -327,7 +380,9 @@ angular
 			$ionicPopup,
 			favoriteFactory,
 			$cordovaVibration,
-			$ionicPlatform
+			$ionicPlatform,
+			$state,
+			$cordovaToast
 		) {
 			$scope.baseURL = baseURL;
 			$scope.favorites = favorites;
@@ -344,10 +399,20 @@ angular
 					.then(res => {
 						if (res) {
 							favoriteFactory
-								.deleteFromFavorites(index);
+								.deleteFromFavorites(index)
+								.then(() => {
+									$state.go(
+										$state.current,
+										{},
+										{reload: true, inherit: false}
+									);
 
-							$ionicPlatform
-								.ready(() => $cordovaVibration.vibrate(1000));
+									$cordovaToast
+										.show('Dish deleted', 'long', 'bottom');
+								})
+								.catch(err => $cordovaToast
+									.show(err, 'long', 'bottom'));
+
 						}
 					});
 

@@ -71,8 +71,8 @@ angular
 				)
 					.deleteFromFavorites({id: id})
 					.$promise
-					.then(favorites => favorites)
-					.catch(err => err);
+					.then(favorites => Promise.resolve(favorites))
+					.catch(err => Promise.reject(err));
 			};
 
 			let getFavorites = function () {
@@ -127,22 +127,31 @@ angular
 					return $resource(url + 'register')
 						.save(user)
 						.$promise
-						.then(result => storeUser(result))
-						.catch(err => err);
+						.then(result => {
+							storeUser(result);
+							return Promise.resolve(result);
+						})
+						.catch(err => Promise.reject(err));
 				},
 				login          : function (user) {
 					return $resource(url + 'login')
 						.save(user)
 						.$promise
-						.then(result => {storeUser(result);})
-						.catch(err => err);
+						.then(result => {
+							storeUser(result);
+							return Promise.resolve(result);
+						})
+						.catch(err => Promise.reject(err));
 				},
 				logout         : function () {
 					return $resource(url + 'logout')
 						.get()
 						.$promise
-						.then(() => removeUser())
-						.catch(err => err);
+						.then(() => {
+							removeUser();
+							return Promise.resolve('success');
+						})
+						.catch(err => Promise.reject(err));
 				},
 				getName        : () => $window.localStorage.getItem(name),
 				getUserId      : () => $window.localStorage.getItem(id),
