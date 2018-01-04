@@ -1,7 +1,7 @@
 Confusion Android Application
 =============================
 
-An ionic application developed as a homework assignment for Multiplatform Mobile App Development with Web Technologies course of the Hong Kong University of Science and Technology through coursera.org
+An ionic application developed as a homework assignment for __*Multiplatform Mobile App Development with Web Technologies*__ course of the __*Hong Kong University of Science and Technology*__ through __*coursera.org*__
 
 ## Prerequisites
 * NodeJS
