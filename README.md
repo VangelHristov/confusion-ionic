@@ -1,25 +1,36 @@
-Ionic App Base
-=====================
+Confusion Android Application
+=============================
 
-A starting project for Ionic that optionally supports using custom SCSS.
+An ionic application developed as a homework assignment for Multiplatform Mobile App Development with Web Technologies course of the Hong Kong University of Science and Technology through coursera.org
+
+## Prerequisites
+* NodeJS
+* ionic
+* cordova
+* jdk 8 ( _jdk 9 does not work well with ionic at the time of writing_ )
+* Android SDK
 
 ## Using this project
-
-We recommend using the [Ionic CLI](https://github.com/driftyco/ionic-cli) to create new Ionic projects that are based on this project but use a ready-made starter template.
-
-For example, to start a new Ionic project with the default tabs interface, make sure the `ionic` utility is installed:
-
+#### Clone the repository
 ```bash
-$ npm install -g ionic
+$ git init
+$ git clone https://github.com/vangelhristov/confusion-ionic.git
+```
+#### Install dependencies
+```bash
+$ cd confusion-ionic
+$ npm i
+$ bower i
+```
+#### Reinstall android platform
+```bash
+$ cordova platform rm android
+$ cordova platform add android
+```
+#### Connect your android device and run the application
+```vash
+$ cordova run android
 ```
 
-Then run: 
-
-```bash
-$ ionic start myProject tabs
-```
-
-More info on this can be found on the Ionic [Getting Started](http://ionicframework.com/getting-started) page and the [Ionic CLI](https://github.com/driftyco/ionic-cli) repo.
-
-## Issues
-Issues have been disabled on this repo, if you do find an issue or have a question consider posting it on the [Ionic Forum](http://forum.ionicframework.com/).  Or else if there is truly an error, follow our guidelines for [submitting an issue](http://ionicframework.com/submit-issue/) to the main Ionic repository.
+## Links
+[certificate for completion](https://www.coursera.org/account/accomplishments/records/67NE3WGR2MDD)
