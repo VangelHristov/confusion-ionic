@@ -33,4 +33,4 @@ $ cordova run android
 ```
 
 ## Links
-[certificate for completion](https://www.coursera.org/account/accomplishments/records/67NE3WGR2MDD)
+[certificate for completion](https://www.coursera.org/account/accomplishments/verify/UVUNAL5FBMQA)
